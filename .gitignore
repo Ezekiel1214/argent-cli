@@ -1,0 +1,7 @@
+.vercel
+.env*.local
+dist
+node_modules
+.argent
+__tests__/**/*.js
+vitest.config.js

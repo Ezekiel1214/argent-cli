@@ -1,0 +1,86 @@
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+
+vi.mock('../../src/utils/logger.js', () => ({
+  logger: {
+    info: vi.fn(),
+    success: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+  },
+}));
+
+vi.mock('../../src/core/clipboard.js', () => ({
+  readClipboard: vi.fn(),
+}));
+
+vi.mock('../../src/core/parser.js', () => ({
+  parseClipboard: vi.fn(),
+}));
+
+vi.mock('../../src/core/mapping.js', () => ({
+  saveMapping: vi.fn(),
+}));
+
+vi.mock('../../src/utils/prompts.js', () => ({
+  promptFilePath: vi.fn(),
+}));
+
+import { capture } from '../../src/commands/capture.js';
+import * as clipboard from '../../src/core/clipboard.js';
+import * as parser from '../../src/core/parser.js';
+import * as mapping from '../../src/core/mapping.js';
+import * as prompts from '../../src/utils/prompts.js';
+import * as logger from '../../src/utils/logger.js';
+
+describe('capture command', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.spyOn(console, 'log').mockImplementation(() => undefined);
+  });
+
+  afterEach(() => {
+    vi.mocked(console.log).mockRestore();
+  });
+
+  it('shows warning when clipboard empty', async () => {
+    vi.mocked(clipboard.readClipboard).mockResolvedValue('');
+    await capture();
+    expect(logger.logger.warn).toHaveBeenCalledWith('Clipboard is empty.');
+  });
+
+  it('shows warning when no code blocks', async () => {
+    vi.mocked(clipboard.readClipboard).mockResolvedValue('text');
+    vi.mocked(parser.parseClipboard).mockReturnValue([]);
+    await capture();
+    expect(logger.logger.warn).toHaveBeenCalledWith('No code blocks found in clipboard.');
+  });
+
+  it('prompts for missing file paths and saves mapping', async () => {
+    const blocks = [
+      { content: 'code1', suggestedPath: 'auto.js' },
+      { content: 'code2', suggestedPath: undefined },
+    ];
+    vi.mocked(clipboard.readClipboard).mockResolvedValue('clip content');
+    vi.mocked(parser.parseClipboard).mockReturnValue(blocks);
+    vi.mocked(prompts.promptFilePath).mockResolvedValue({ filePath: 'manual.js' });
+    vi.mocked(mapping.saveMapping).mockResolvedValue(undefined);
+
+    await capture();
+
+    expect(logger.logger.success).toHaveBeenCalledWith('Found 2 code block(s).');
+    expect(prompts.promptFilePath).toHaveBeenCalledTimes(1);
+    expect(mapping.saveMapping).toHaveBeenCalledWith([
+      { content: 'code1', suggestedPath: 'auto.js' },
+      { content: 'code2', suggestedPath: 'manual.js' },
+    ]);
+    expect(logger.logger.success).toHaveBeenCalledWith(
+      'Mapping saved to .argent/mapping.json. Run `argent apply` to preview and apply changes.',
+    );
+  });
+
+  it('handles errors', async () => {
+    vi.mocked(clipboard.readClipboard).mockRejectedValue(new Error('fail'));
+    await capture();
+    expect(logger.logger.error).toHaveBeenCalledWith('fail');
+  });
+});

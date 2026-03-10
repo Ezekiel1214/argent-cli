@@ -1,0 +1,35 @@
+{
+  "name": "super-ai-argent",
+  "version": "0.4.0",
+  "description": "Bridge AI chats to your code with safe apply and Vercel deploy",
+  "type": "module",
+  "bin": {
+    "argent": "./bin/argent.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "test": "npm run test:core",
+    "test:core": "npm run build && node scripts/verify-core.mjs",
+    "test:vitest": "vitest run --config ./vitest.config.ts --configLoader runner",
+    "test:watch": "vitest --config ./vitest.config.ts --configLoader runner",
+    "smoke": "node scripts/smoke-test.mjs",
+    "prepublishOnly": "npm run build"
+  },
+  "dependencies": {
+    "chalk": "^4.1.2",
+    "clipboardy": "^3.0.0",
+    "commander": "^11.0.0",
+    "cosmiconfig": "^8.3.6",
+    "execa": "^8.0.1",
+    "inquirer": "^8.2.6"
+  },
+  "devDependencies": {
+    "@types/chalk": "^2.2.0",
+    "@types/clipboardy": "^2.0.1",
+    "@types/execa": "^2.0.0",
+    "@types/inquirer": "^8.2.6",
+    "@types/node": "^20.8.0",
+    "typescript": "^5.2.2",
+    "vitest": "^3.2.4"
+  }
+}
