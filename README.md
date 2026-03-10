@@ -1,6 +1,34 @@
 # super-ai-argent
 
-Small CLI for turning AI-generated code blocks into reviewed file updates, with optional Vercel deployment.
+Turn ChatGPT, Codex, and Claude output into safe, reviewable file changes.
+
+Argent is a developer CLI that captures AI-generated code or documentation, maps it to files, shows diffs, applies approved changes, and can optionally deploy.
+
+## Why It Exists
+
+AI tools are good at generating code, but weak at landing that output cleanly into real projects.
+Argent closes that gap.
+
+Use it when you want to:
+- take a handover from an AI chat and turn it into files
+- review diffs before writing anything
+- apply only the parts you approve
+- keep backups of overwritten files
+- optionally deploy after changes land
+
+## 30-Second Demo
+
+```bash
+argent init
+argent capture --file handover.md
+argent apply
+```
+
+Or as a one-command flow:
+
+```bash
+argent build --file handover.md --yes
+```
 
 ## What Argent Is
 
