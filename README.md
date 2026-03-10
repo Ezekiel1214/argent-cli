@@ -2,28 +2,132 @@
 
 Small CLI for turning AI-generated code blocks into reviewed file updates, with optional Vercel deployment.
 
-## Commands
+## What Argent Is
 
-`argent capture`
-Reads the clipboard, extracts fenced code blocks, detects `FILE:` markers, and saves a normalized mapping to `.argent/mapping.json`.
+Argent is not a chat model. It is the bridge between AI responses and your local project files.
 
-`argent capture --stdin`
-Reads the AI response from standard input instead of the clipboard. This is the non-interactive path for shell pipelines.
+Use ChatGPT, Codex, Claude, or another AI to generate code or documentation, then use Argent to:
+- capture the AI response
+- map it to file paths
+- preview diffs
+- apply the changes safely
+- optionally deploy
 
-`argent capture --file incoming/handover.md`
-Reads AI conversation or documentation from a project-relative file on disk.
+In practice, the workflow is:
+1. Ask an AI to generate file-based changes.
+2. Save or pipe the response into Argent.
+3. Review the diffs.
+4. Apply the changes.
 
-`argent capture --default-file docs/handover.md`
-Uses the specified project-relative file for blocks that do not include a `FILE:` marker.
+## Quick Start
 
-`argent capture --infer-paths --docs-dir handover`
-Infers output document paths from markdown headings when blocks do not include a `FILE:` marker.
+Install in the CLI project:
 
-`argent capture --output tmp/mapping.json`
-Writes the captured mapping to a custom project-relative JSON path instead of `.argent/mapping.json`.
+```bash
+npm install
+npm run build
+npm link
+```
 
-`argent capture --split-headings`
-When plain markdown has no code fences, splits it into multiple blocks by headings instead of treating the whole document as one block.
+Then inside any project you want to work on:
+
+```bash
+argent doctor
+argent init
+```
+
+If `argent doctor` works, installation is done.
+
+## First Real Workflow
+
+1. Go into the project you want to edit.
+
+```bash
+cd path/to/your-project
+```
+
+2. Ask your AI for a file-based response.
+
+Recommended prompt style:
+
+````text
+Return the result as fenced code blocks.
+Put a FILE marker at the top of each block, for example:
+
+```ts
+// FILE: src/app.ts
+console.log("hello");
+```
+
+```md
+<!-- FILE: README.md -->
+# Project
+```
+````
+
+3. Save that AI response as a file such as `handover.md`.
+
+4. Capture it:
+
+```bash
+argent capture --file handover.md
+```
+
+5. Review and apply it:
+
+```bash
+argent apply
+```
+
+That is the core Argent workflow.
+
+## Fast Workflow
+
+If you want capture and apply in one step:
+
+```bash
+argent build --file handover.md --yes
+```
+
+If your input is a long markdown handover and file paths should be inferred from headings:
+
+```bash
+argent build --file handover.md --split-headings --infer-paths --yes
+```
+
+## How Users Should Think About Argent
+
+Argent does not replace ChatGPT or Codex.
+It makes AI output operational.
+
+Users should understand three things:
+- the AI writes the proposed content
+- Argent turns that content into mapped file changes
+- the user can review diffs before writing anything
+
+## Input Options
+
+Clipboard:
+
+```bash
+argent capture
+```
+
+Standard input:
+
+```bash
+cat handover.md | argent capture --stdin
+```
+
+Project file:
+
+```bash
+argent capture --file handover.md
+```
+
+## Recommended Output Format From The AI
+
+Best results come from fenced code blocks with file markers near the top.
 
 Supported inline file markers in the first 5 lines of a code block:
 - `// FILE: src/app.ts`
@@ -33,38 +137,10 @@ Supported inline file markers in the first 5 lines of a code block:
 
 If no fenced code blocks are present, `capture` treats the entire input as one document block by default. With `--split-headings`, plain markdown is split into sections, which is useful for long handovers and structured AI summaries.
 
-`argent apply`
-Shows a line-based diff for each mapped file, asks for confirmation, writes the approved changes, and creates backups under `.argent/backups`.
-
-`argent apply --yes`
-Applies every mapped change without interactive confirmation. This is the non-interactive mode for scripting.
-
-`argent apply --file src/app.ts`
-Applies only the mapped change for a specific project-relative file.
-
-`argent apply --mapping tmp/mapping.json`
-Reads mapped changes from a custom project-relative JSON file.
-
-`argent apply --dry-run`
-Prints the selected diffs without writing files, creating backups, or deploying.
-
-`argent apply --require-changes`
-Reports an error if the selected mapping produces no effective file changes. Useful in CI and automation.
-
-`argent apply --deploy`
-Runs the normal apply flow and deploys to Vercel only if at least one file was actually updated.
-
-`argent build --file incoming/handover.md --split-headings --infer-paths --yes`
-Runs document ingestion and apply in one step, turning a handover or AI summary directly into built files.
-
-`argent build --file incoming/handover.md --split-headings --infer-paths --yes --deploy`
-Runs the full agent flow: ingest the document, build the inferred files, and deploy when changes were actually applied.
+## Core Commands
 
 `argent doctor`
-Checks the current environment and reports the up-to-date capabilities, integrations, and available workflow options.
-
-`argent deploy`
-Triggers a production Vercel deployment for the current project.
+Checks the current environment and reports capabilities, integrations, and available workflow options.
 
 `argent init`
 Creates a default `.argentrc.json`:
@@ -76,12 +152,76 @@ Creates a default `.argentrc.json`:
 }
 ```
 
+`argent capture`
+Reads AI output, extracts fenced code blocks, detects `FILE:` markers, and saves a normalized mapping to `.argent/mapping.json`.
+
+Useful variants:
+- `argent capture --stdin`
+- `argent capture --file incoming/handover.md`
+- `argent capture --default-file docs/handover.md`
+- `argent capture --infer-paths --docs-dir handover`
+- `argent capture --output tmp/mapping.json`
+- `argent capture --split-headings`
+
+`argent apply`
+Shows a line-based diff for each mapped file, asks for confirmation, writes the approved changes, and creates backups under `.argent/backups`.
+
+Useful variants:
+- `argent apply --yes`
+- `argent apply --file src/app.ts`
+- `argent apply --mapping tmp/mapping.json`
+- `argent apply --dry-run`
+- `argent apply --require-changes`
+- `argent apply --deploy`
+
+`argent build`
+Runs document ingestion and apply in one step.
+
+Useful variants:
+- `argent build --file incoming/handover.md --split-headings --infer-paths --yes`
+- `argent build --file incoming/handover.md --split-headings --infer-paths --yes --deploy`
+
+`argent deploy`
+Triggers a production Vercel deployment for the current project.
+
 ## Safety Rules
 
 - File paths are normalized to project-relative paths.
 - Absolute paths, UNC paths, and `..` traversal are rejected.
 - Existing files are backed up before overwrite.
 - Saved mappings are revalidated when loaded.
+
+## Example End-To-End
+
+Create a test folder and try this:
+
+```bash
+mkdir demo-agent
+cd demo-agent
+argent init
+```
+
+Create `handover.md` with:
+
+````md
+```txt
+FILE: src/hello.txt
+hello from argent
+```
+````
+
+Then run:
+
+```bash
+argent capture --file handover.md
+argent apply --yes
+```
+
+You should get:
+
+```bash
+src/hello.txt
+```
 
 ## Development
 
