@@ -4,6 +4,8 @@ Turn ChatGPT, Codex, and Claude output into safe, reviewable file changes.
 
 Argent is a developer CLI that captures AI-generated code or documentation, maps it to files, shows diffs, applies approved changes, and can optionally deploy.
 
+![Argent terminal demo](assets/terminal-demo.svg)
+
 ## Why It Exists
 
 AI tools are good at generating code, but weak at landing that output cleanly into real projects.
@@ -15,6 +17,22 @@ Use it when you want to:
 - apply only the parts you approve
 - keep backups of overwritten files
 - optionally deploy after changes land
+
+## Why Not Just Copy/Paste?
+
+Manual copy/paste breaks down fast once an AI response spans multiple files. Argent gives you structure and safety instead of ad-hoc edits.
+
+Without Argent:
+- file paths are easy to lose or misread
+- large responses are error-prone to paste by hand
+- overwrites happen without backup
+- there is no consistent review step
+
+With Argent:
+- AI output is mapped into project-relative files
+- diffs are previewed before writing
+- backups are created automatically
+- the same workflow works for one file or many
 
 ## 30-Second Demo
 

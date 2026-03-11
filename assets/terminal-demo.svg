@@ -1,0 +1,22 @@
+<svg width="1200" height="720" viewBox="0 0 1200 720" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="720" rx="24" fill="#0b1020"/>
+  <rect x="40" y="40" width="1120" height="640" rx="18" fill="#111827" stroke="#263041"/>
+  <circle cx="84" cy="80" r="10" fill="#ff5f56"/>
+  <circle cx="114" cy="80" r="10" fill="#ffbd2e"/>
+  <circle cx="144" cy="80" r="10" fill="#27c93f"/>
+  <text x="180" y="88" fill="#9ca3af" font-family="Consolas, Menlo, monospace" font-size="24">argent demo</text>
+
+  <text x="70" y="150" fill="#22c55e" font-family="Consolas, Menlo, monospace" font-size="28">$ argent init</text>
+  <text x="70" y="195" fill="#e5e7eb" font-family="Consolas, Menlo, monospace" font-size="26">Created .argentrc.json</text>
+
+  <text x="70" y="270" fill="#22c55e" font-family="Consolas, Menlo, monospace" font-size="28">$ argent capture --file handover.md</text>
+  <text x="70" y="315" fill="#e5e7eb" font-family="Consolas, Menlo, monospace" font-size="26">Captured 2 mapped files into .argent/mapping.json</text>
+
+  <text x="70" y="390" fill="#22c55e" font-family="Consolas, Menlo, monospace" font-size="28">$ argent apply</text>
+  <text x="70" y="435" fill="#93c5fd" font-family="Consolas, Menlo, monospace" font-size="26">diff -- src/app.ts</text>
+  <text x="70" y="475" fill="#34d399" font-family="Consolas, Menlo, monospace" font-size="24">+ export function run() {</text>
+  <text x="70" y="510" fill="#34d399" font-family="Consolas, Menlo, monospace" font-size="24">+   console.log(&quot;hello from argent&quot;)</text>
+  <text x="70" y="545" fill="#34d399" font-family="Consolas, Menlo, monospace" font-size="24">+ }</text>
+  <text x="70" y="605" fill="#fbbf24" font-family="Consolas, Menlo, monospace" font-size="26">Apply change? [y/N] y</text>
+  <text x="70" y="645" fill="#e5e7eb" font-family="Consolas, Menlo, monospace" font-size="26">Wrote 1 file. Backup saved to .argent/backups</text>
+</svg>
