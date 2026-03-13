@@ -91,6 +91,36 @@ describe('capture command', () => {
     );
   });
 
+  it('falls back to defaultFile when inferPaths cannot infer a path', async () => {
+    const blocks = [{ content: 'Plain paragraph without heading', suggestedPath: undefined }];
+    vi.mocked(clipboard.readClipboard).mockResolvedValue('clip content');
+    vi.mocked(parser.parseClipboard).mockReturnValue(blocks);
+    vi.mocked(mapping.saveMapping).mockResolvedValue(undefined);
+
+    await capture({ inferPaths: true, defaultFile: 'docs/fallback.md' });
+
+    expect(mapping.saveMapping).toHaveBeenCalledWith(
+      [{ content: 'Plain paragraph without heading', suggestedPath: 'docs/fallback.md' }],
+      undefined,
+    );
+  });
+
+  it('prompts when inferPaths cannot infer a path and no default file is set', async () => {
+    const blocks = [{ content: 'Plain paragraph without heading', suggestedPath: undefined }];
+    vi.mocked(clipboard.readClipboard).mockResolvedValue('clip content');
+    vi.mocked(parser.parseClipboard).mockReturnValue(blocks);
+    vi.mocked(prompts.promptFilePath).mockResolvedValue({ filePath: 'docs/manual.md' });
+    vi.mocked(mapping.saveMapping).mockResolvedValue(undefined);
+
+    await capture({ inferPaths: true });
+
+    expect(prompts.promptFilePath).toHaveBeenCalledTimes(1);
+    expect(mapping.saveMapping).toHaveBeenCalledWith(
+      [{ content: 'Plain paragraph without heading', suggestedPath: 'docs/manual.md' }],
+      undefined,
+    );
+  });
+
   it('handles errors', async () => {
     vi.mocked(clipboard.readClipboard).mockRejectedValue(new Error('fail'));
     await capture();

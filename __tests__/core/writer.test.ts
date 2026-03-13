@@ -21,9 +21,9 @@ describe('writer', () => {
 
     await applyChanges('src/file.js', 'new content');
 
-    expect(mockedFs.mkdir).toHaveBeenCalledWith('.argent/backups', { recursive: true });
+    expect(mockedFs.mkdir).toHaveBeenCalledWith(expect.stringMatching(/\.argent[\\/]backups[\\/]src$/), { recursive: true });
     expect(mockedFs.writeFile).toHaveBeenCalledWith(
-      expect.stringMatching(/\.argent[\\/]backups[\\/]file\.js\.\d+\.bak/),
+      expect.stringMatching(/\.argent[\\/]backups[\\/]src[\\/]file\.js\.\d+\.bak/),
       'existing content',
       'utf-8',
     );

@@ -482,6 +482,34 @@ await run('capture can infer paths for split plain markdown sections', async () 
   }
 });
 
+await run('capture falls back when inferPaths cannot infer a path', async () => {
+  const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'argent-verify-infer-fallback-'));
+  const previousCwd = process.cwd();
+
+  try {
+    process.chdir(tempDir);
+    await fs.mkdir('incoming', { recursive: true });
+    await fs.writeFile(path.join('incoming', 'plain.md'), 'Plain paragraph without heading', 'utf-8');
+
+    const { capture } = await importDistModule(path.join('commands', 'capture.js'));
+    const { loadMapping } = await importDistModule(path.join('core', 'mapping.js'));
+
+    await capture({
+      file: 'incoming/plain.md',
+      output: 'tmp/infer-fallback.json',
+      inferPaths: true,
+      defaultFile: 'docs/fallback.md',
+    });
+
+    const blocks = await loadMapping('tmp/infer-fallback.json');
+    assert.equal(blocks.length, 1);
+    assert.equal(blocks[0].suggestedPath, 'docs/fallback.md');
+  } finally {
+    process.chdir(previousCwd);
+    await fs.rm(tempDir, { recursive: true, force: true });
+  }
+});
+
 await run('build command can ingest a document and write inferred output files', async () => {
   const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'argent-verify-build-command-'));
   const previousCwd = process.cwd();

@@ -73,7 +73,10 @@ export async function capture(options: CaptureOptions = {}): Promise<boolean> {
           ...block,
           suggestedPath: normalizeRelativeFilePath(block.suggestedPath),
         });
-      } else if (options.inferPaths) {
+        continue;
+      }
+
+      if (options.inferPaths) {
         const inferredPath = inferDocumentPath(block.content, options.docsDir);
         if (inferredPath) {
           logger.info(`Inferred path for block ${i + 1}: ${inferredPath}`);
@@ -83,20 +86,23 @@ export async function capture(options: CaptureOptions = {}): Promise<boolean> {
           });
           continue;
         }
-      } else if (options.defaultFile) {
+      }
+
+      if (options.defaultFile) {
         enrichedBlocks.push({
           ...block,
           suggestedPath: normalizeRelativeFilePath(options.defaultFile),
         });
-      } else {
-        logger.info(`Block ${i + 1} has no file marker.`);
-        const preview = block.content.split('\n')[0] || block.content.substring(0, 50);
-        const { filePath } = await promptFilePath(i, preview);
-        enrichedBlocks.push({
-          ...block,
-          suggestedPath: normalizeRelativeFilePath(filePath),
-        });
+        continue;
       }
+
+      logger.info(`Block ${i + 1} has no file marker.`);
+      const preview = block.content.split('\n')[0] || block.content.substring(0, 50);
+      const { filePath } = await promptFilePath(i, preview);
+      enrichedBlocks.push({
+        ...block,
+        suggestedPath: normalizeRelativeFilePath(filePath),
+      });
     }
 
     const mappingPath = options.output;
