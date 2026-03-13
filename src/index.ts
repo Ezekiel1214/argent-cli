@@ -21,7 +21,9 @@ program
   .option('-o, --output <path>', 'Write the mapping JSON to the specified project-relative path')
   .option('--split-headings', 'When no code fences exist, split plain markdown documents into sections by headings')
   .option('--stdin', 'Read AI conversation from stdin instead of the clipboard')
-  .action(capture);
+  .action(async (options) => {
+    await capture(options);
+  });
 
 program
   .command('apply')

@@ -28,7 +28,7 @@ async function readStdin(): Promise<string> {
   return Buffer.concat(chunks).toString('utf-8');
 }
 
-export async function capture(options: CaptureOptions = {}): Promise<void> {
+export async function capture(options: CaptureOptions = {}): Promise<boolean> {
   try {
     if (options.stdin && options.file) {
       throw new Error('Choose either --stdin or --file, not both.');
@@ -53,14 +53,14 @@ export async function capture(options: CaptureOptions = {}): Promise<void> {
 
     if (!text) {
       logger.warn(options.file ? 'Input file is empty.' : options.stdin ? 'Stdin is empty.' : 'Clipboard is empty.');
-      return;
+      return false;
     }
 
     const blocks = parseClipboard(text, { splitHeadings: options.splitHeadings });
 
     if (blocks.length === 0) {
       logger.warn(options.file ? 'No code blocks found in the input file.' : options.stdin ? 'No code blocks found in stdin.' : 'No code blocks found in clipboard.');
-      return;
+      return false;
     }
 
     logger.success(`Found ${blocks.length} code block(s).`);
@@ -104,7 +104,9 @@ export async function capture(options: CaptureOptions = {}): Promise<void> {
     logger.success(
       `Mapping saved to ${mappingPath ? normalizeRelativeFilePath(mappingPath) : '.argent/mapping.json'}. Run \`argent apply\` to preview and apply changes.`,
     );
+    return true;
   } catch (err: unknown) {
     logger.error((err as Error).message);
+    return false;
   }
 }

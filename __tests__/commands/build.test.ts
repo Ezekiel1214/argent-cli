@@ -13,6 +13,8 @@ describe('build command', () => {
   });
 
   it('passes deploy provider through to apply', async () => {
+    vi.mocked(captureModule.capture).mockResolvedValue(true as never);
+
     await build({
       deploy: true,
       deployProvider: 'netlify',
@@ -40,5 +42,16 @@ describe('build command', () => {
       requireChanges: undefined,
       yes: true,
     });
+  });
+
+  it('stops when capture does not produce a mapping', async () => {
+    vi.mocked(captureModule.capture).mockResolvedValue(false as never);
+
+    await build({
+      file: 'incoming/empty.md',
+      mapping: 'tmp/build-mapping.json',
+    });
+
+    expect(applyModule.apply).not.toHaveBeenCalled();
   });
 });

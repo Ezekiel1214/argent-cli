@@ -493,4 +493,35 @@ await run('build command can ingest a document and write inferred output files',
   }
 });
 
+await run('build command does not apply stale mappings when capture produces no output', async () => {
+  const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'argent-verify-build-empty-'));
+  const previousCwd = process.cwd();
+
+  try {
+    process.chdir(tempDir);
+    await fs.mkdir('.argent', { recursive: true });
+    await fs.mkdir('incoming', { recursive: true });
+    await fs.mkdir('docs', { recursive: true });
+    await fs.writeFile(path.join('docs', 'stale.md'), 'stale\n', 'utf-8');
+    await fs.writeFile(path.join('incoming', 'empty.md'), '', 'utf-8');
+    await fs.writeFile(
+      path.join('.argent', 'mapping.json'),
+      JSON.stringify([{ content: 'new stale\n', suggestedPath: 'docs/stale.md' }]),
+      'utf-8',
+    );
+
+    const { build } = await importDistModule(path.join('commands', 'build.js'));
+    await build({
+      file: 'incoming/empty.md',
+      yes: true,
+    });
+
+    const stale = await fs.readFile(path.join('docs', 'stale.md'), 'utf-8');
+    assert.equal(stale, 'stale\n');
+  } finally {
+    process.chdir(previousCwd);
+    await fs.rm(tempDir, { recursive: true, force: true });
+  }
+});
+
 console.log('Core verification passed.');

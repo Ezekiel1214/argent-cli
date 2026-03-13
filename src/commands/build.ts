@@ -19,7 +19,7 @@ interface BuildOptions {
 }
 
 export async function build(options: BuildOptions = {}): Promise<void> {
-  await capture({
+  const captured = await capture({
     docsDir: options.docsDir,
     defaultFile: options.defaultFile,
     file: options.file,
@@ -28,6 +28,10 @@ export async function build(options: BuildOptions = {}): Promise<void> {
     splitHeadings: options.splitHeadings,
     stdin: options.stdin,
   });
+
+  if (!captured) {
+    return;
+  }
 
   await apply({
     deploy: options.deploy,
