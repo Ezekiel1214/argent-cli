@@ -3,6 +3,7 @@ import path from 'path';
 import { execa } from 'execa';
 import { loadConfig } from '../core/config.js';
 import { logger } from '../utils/logger.js';
+import { DEFAULT_DEPLOY_PROVIDER, getVercelCommand, normalizeDeployProvider } from '../utils/deploy-provider.js';
 
 interface DoctorOptions {
   json?: boolean;
@@ -18,6 +19,7 @@ interface DoctorReport {
   config: {
     autoDeploy: boolean;
     backupDir: string;
+    deployProvider: string;
   };
   files: {
     defaultMappingExists: boolean;
@@ -45,8 +47,10 @@ async function fileExists(filePath: string): Promise<boolean> {
 }
 
 async function getVercelStatus(): Promise<{ available: boolean; version?: string }> {
+  const vercelCommand = getVercelCommand();
+
   try {
-    const result = await execa('vercel', ['--version']);
+    const result = await execa(vercelCommand, ['--version']);
     return {
       available: true,
       version: result.stdout.trim() || undefined,
@@ -69,6 +73,9 @@ export async function doctor(options: DoctorOptions = {}): Promise<void> {
     config: {
       autoDeploy: Boolean(config.autoDeploy),
       backupDir: config.backupDir ?? '.argent/backups',
+      deployProvider:
+        normalizeDeployProvider(typeof config.deployProvider === 'string' ? config.deployProvider : undefined) ??
+        DEFAULT_DEPLOY_PROVIDER,
     },
     files: {
       defaultMappingExists: await fileExists(path.join('.argent', 'mapping.json')),
@@ -81,8 +88,8 @@ export async function doctor(options: DoctorOptions = {}): Promise<void> {
     capabilities: {
       captureInputs: ['clipboard', 'stdin', 'file'],
       captureFeatures: ['plain-document fallback', 'heading splitting', 'default file', 'path inference', 'custom mapping output'],
-      applyFeatures: ['single-file apply', 'custom mapping input', 'dry-run', 'require-changes', 'deploy'],
-      buildFeatures: ['ingest-and-build', 'path inference', 'split headings', 'optional deploy'],
+      applyFeatures: ['single-file apply', 'custom mapping input', 'dry-run', 'require-changes', 'deploy', 'deploy provider selection'],
+      buildFeatures: ['ingest-and-build', 'path inference', 'split headings', 'optional deploy', 'deploy provider selection'],
     },
   };
 
@@ -94,7 +101,9 @@ export async function doctor(options: DoctorOptions = {}): Promise<void> {
   logger.info(`argent ${report.version}`);
   logger.info(`Node ${report.runtime.node} on ${report.runtime.platform}`);
   logger.info(`Working directory: ${report.runtime.cwd}`);
-  logger.info(`Config: autoDeploy=${report.config.autoDeploy} backupDir=${report.config.backupDir}`);
+  logger.info(
+    `Config: autoDeploy=${report.config.autoDeploy} backupDir=${report.config.backupDir} deployProvider=${report.config.deployProvider}`,
+  );
   logger.info(`Files: config=${report.files.configExists ? 'present' : 'missing'} mapping=${report.files.defaultMappingExists ? 'present' : 'missing'}`);
   logger.info(`Vercel CLI: ${report.integrations.vercelCliAvailable ? `available${report.integrations.vercelVersion ? ` (${report.integrations.vercelVersion})` : ''}` : 'missing'}`);
   logger.info(`Capture inputs: ${report.capabilities.captureInputs.join(', ')}`);

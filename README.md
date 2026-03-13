@@ -75,6 +75,8 @@ npm run build
 npm link
 ```
 
+On Windows PowerShell with script execution disabled, use `npm.cmd`, `npx.cmd`, and `vercel.cmd` instead of the bare commands.
+
 Then inside any project you want to work on:
 
 ```bash
@@ -194,7 +196,8 @@ Creates a default `.argentrc.json`:
 ```json
 {
   "autoDeploy": false,
-  "backupDir": ".argent/backups"
+  "backupDir": ".argent/backups",
+  "deployProvider": "vercel"
 }
 ```
 
@@ -219,6 +222,7 @@ Useful variants:
 - `argent apply --dry-run`
 - `argent apply --require-changes`
 - `argent apply --deploy`
+- `argent apply --deploy --deploy-provider netlify`
 
 `argent build`
 Runs document ingestion and apply in one step.
@@ -226,9 +230,14 @@ Runs document ingestion and apply in one step.
 Useful variants:
 - `argent build --file incoming/handover.md --split-headings --infer-paths --yes`
 - `argent build --file incoming/handover.md --split-headings --infer-paths --yes --deploy`
+- `argent build --file incoming/handover.md --split-headings --infer-paths --yes --deploy --deploy-provider netlify`
 
 `argent deploy`
-Triggers a production Vercel deployment for the current project.
+Triggers a production deployment for the current project using the configured provider.
+
+Useful variants:
+- `argent deploy`
+- `argent deploy --provider netlify`
 
 ## Safety Rules
 

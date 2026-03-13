@@ -1,8 +1,11 @@
 import { cosmiconfig } from 'cosmiconfig';
 
+export type DeployProvider = 'vercel' | 'netlify';
+
 export interface ArgentConfig {
   autoDeploy?: boolean;
   backupDir?: string;
+  deployProvider?: DeployProvider;
 }
 
 const explorer = cosmiconfig('argent');

@@ -95,4 +95,17 @@ describe('apply command', () => {
 
     expect(deployModule.deploy).toHaveBeenCalled();
   });
+
+  it('passes the selected deploy provider through', async () => {
+    const blocks = [{ content: 'new', suggestedPath: 'file.js' }];
+
+    vi.mocked(mapping.loadMapping).mockResolvedValue(blocks);
+    vi.mocked(differ.generateDiff).mockResolvedValue('diff');
+    vi.mocked(prompts.confirmApply).mockResolvedValue(true);
+    vi.mocked(writer.applyChanges).mockResolvedValue(undefined);
+
+    await apply({ deploy: true, deployProvider: 'netlify' });
+
+    expect(deployModule.deploy).toHaveBeenCalledWith({ provider: 'netlify' });
+  });
 });

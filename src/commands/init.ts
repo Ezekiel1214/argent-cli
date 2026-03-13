@@ -16,6 +16,7 @@ export async function init(): Promise<void> {
   const defaultConfig = {
     autoDeploy: false,
     backupDir: '.argent/backups',
+    deployProvider: 'vercel',
   };
 
   await fs.writeFile(configPath, JSON.stringify(defaultConfig, null, 2), 'utf-8');

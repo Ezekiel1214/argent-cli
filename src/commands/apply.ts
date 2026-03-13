@@ -1,3 +1,4 @@
+import type { DeployProvider } from '../core/config.js';
 import { loadMapping } from '../core/mapping.js';
 import { normalizeRelativeFilePath } from '../core/paths.js';
 import { generateDiff } from '../core/differ.js';
@@ -8,6 +9,7 @@ import { deploy } from './deploy.js';
 
 interface ApplyOptions {
   deploy?: boolean;
+  deployProvider?: DeployProvider | string;
   dryRun?: boolean;
   file?: string;
   mapping?: string;
@@ -74,7 +76,7 @@ export async function apply(options: ApplyOptions = {}): Promise<void> {
       if (options.dryRun) {
         logger.info('Skipping deploy because dry-run mode is enabled.');
       } else if (appliedCount > 0) {
-        await deploy();
+        await deploy({ provider: options.deployProvider });
       } else {
         logger.info('Skipping deploy because no changes were applied.');
       }

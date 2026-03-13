@@ -1,8 +1,10 @@
+import type { DeployProvider } from '../core/config.js';
 import { apply } from './apply.js';
 import { capture } from './capture.js';
 
 interface BuildOptions {
   deploy?: boolean;
+  deployProvider?: DeployProvider | string;
   docsDir?: string;
   dryRun?: boolean;
   file?: string;
@@ -29,6 +31,7 @@ export async function build(options: BuildOptions = {}): Promise<void> {
 
   await apply({
     deploy: options.deploy,
+    deployProvider: options.deployProvider,
     dryRun: options.dryRun,
     file: options.targetFile,
     mapping: options.mapping,

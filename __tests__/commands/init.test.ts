@@ -29,7 +29,7 @@ describe('init command', () => {
 
     expect(mockedFs.writeFile).toHaveBeenCalledWith(
       expect.stringContaining('.argentrc.json'),
-      JSON.stringify({ autoDeploy: false, backupDir: '.argent/backups' }, null, 2),
+      JSON.stringify({ autoDeploy: false, backupDir: '.argent/backups', deployProvider: 'vercel' }, null, 2),
       'utf-8',
     );
     expect(logger.logger.success).toHaveBeenCalled();
