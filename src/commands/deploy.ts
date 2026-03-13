@@ -37,34 +37,30 @@ async function runDeploy(provider: DeployProvider): Promise<void> {
 }
 
 export async function deploy(options: DeployOptions | boolean = {}): Promise<void> {
-  const normalizedOptions = typeof options === 'boolean' ? { skipPrompt: options } : options;
-  const config = await loadConfig();
-  const configProvider = typeof config.deployProvider === 'string' ? config.deployProvider : undefined;
-
-  let provider: DeployProvider;
   try {
-    provider = resolveDeployProvider(normalizedOptions.provider, resolveDeployProvider(configProvider));
+    const normalizedOptions = typeof options === 'boolean' ? { skipPrompt: options } : options;
+    const config = await loadConfig();
+    const configProvider = typeof config.deployProvider === 'string' ? config.deployProvider : undefined;
+    const provider = resolveDeployProvider(normalizedOptions.provider, resolveDeployProvider(configProvider));
+    const providerName = getDeployProviderName(provider);
+    const ok = normalizedOptions.skipPrompt || config.autoDeploy || (await confirmDeploy(providerName));
+    if (!ok) {
+      return;
+    }
+
+    const cliAvailable = await ensureDeployCli(provider);
+    if (!cliAvailable) {
+      return;
+    }
+
+    logger.info(`Deploying to ${providerName}...`);
+    try {
+      await runDeploy(provider);
+      logger.success('Deployment complete!');
+    } catch (err) {
+      logger.error(`Deployment failed: ${String(err)}`);
+    }
   } catch (err) {
     logger.error((err as Error).message);
-    return;
-  }
-
-  const providerName = getDeployProviderName(provider);
-  const ok = normalizedOptions.skipPrompt || config.autoDeploy || (await confirmDeploy(providerName));
-  if (!ok) {
-    return;
-  }
-
-  const cliAvailable = await ensureDeployCli(provider);
-  if (!cliAvailable) {
-    return;
-  }
-
-  logger.info(`Deploying to ${providerName}...`);
-  try {
-    await runDeploy(provider);
-    logger.success('Deployment complete!');
-  } catch (err) {
-    logger.error(`Deployment failed: ${String(err)}`);
   }
 }
