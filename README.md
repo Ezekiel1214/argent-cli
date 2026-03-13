@@ -306,6 +306,16 @@ npm run smoke
 npm run test:vitest
 ```
 
+Release checks:
+
+```bash
+npm pack --dry-run
+```
+
+Publishing:
+- The package tarball is intentionally limited via the `files` allowlist in `package.json`.
+- GitHub Actions can publish from a release using npm trusted publishing once the npm package is configured for this repository.
+
 Notes:
 - `npm test` runs the in-process core verifier and works in restricted environments.
 - `npm run test:vitest` keeps the original Vitest suite available, but it may fail in locked-down sandboxes that block process spawning.
