@@ -1,5 +1,7 @@
+import fs from 'fs/promises';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
+vi.mock('fs/promises');
 vi.mock('../../src/utils/logger.js', () => ({
   logger: {
     info: vi.fn(),
@@ -32,6 +34,8 @@ import * as mapping from '../../src/core/mapping.js';
 import * as prompts from '../../src/utils/prompts.js';
 import * as logger from '../../src/utils/logger.js';
 
+const mockedFs = vi.mocked(fs);
+
 describe('capture command', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -53,6 +57,15 @@ describe('capture command', () => {
     vi.mocked(parser.parseClipboard).mockReturnValue([]);
     await capture();
     expect(logger.logger.warn).toHaveBeenCalledWith('No code blocks found in clipboard.');
+  });
+
+  it('shows file-specific warning when a file has no code blocks', async () => {
+    mockedFs.readFile.mockResolvedValue('text' as never);
+    vi.mocked(parser.parseClipboard).mockReturnValue([]);
+
+    await capture({ file: 'incoming/handover.md' });
+
+    expect(logger.logger.warn).toHaveBeenCalledWith('No code blocks found in the input file.');
   });
 
   it('prompts for missing file paths and saves mapping', async () => {

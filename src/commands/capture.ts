@@ -59,7 +59,7 @@ export async function capture(options: CaptureOptions = {}): Promise<void> {
     const blocks = parseClipboard(text, { splitHeadings: options.splitHeadings });
 
     if (blocks.length === 0) {
-      logger.warn('No code blocks found in clipboard.');
+      logger.warn(options.file ? 'No code blocks found in the input file.' : options.stdin ? 'No code blocks found in stdin.' : 'No code blocks found in clipboard.');
       return;
     }
 
