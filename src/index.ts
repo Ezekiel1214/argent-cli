@@ -57,7 +57,8 @@ program
   .command('deploy')
   .description('Deploy current project using the configured provider')
   .option('--provider <provider>', 'Deployment provider to use (vercel or netlify)')
-  .action((options) => deploy(options));
+  .option('-y, --yes', 'Skip the deploy confirmation prompt')
+  .action((options) => deploy({ provider: options.provider, skipPrompt: options.yes }));
 program.command('doctor').description('Check current capabilities, environment, and available integrations').option('--json', 'Print the report as JSON').action(doctor);
 program.command('init').description('Create a default .argentrc.json configuration file').action(init);
 

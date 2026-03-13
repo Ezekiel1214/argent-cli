@@ -108,4 +108,17 @@ describe('apply command', () => {
 
     expect(deployModule.deploy).toHaveBeenCalledWith({ provider: 'netlify' });
   });
+
+  it('uses --yes to skip the deploy prompt in follow-up deploys', async () => {
+    const blocks = [{ content: 'new', suggestedPath: 'file.js' }];
+
+    vi.mocked(mapping.loadMapping).mockResolvedValue(blocks);
+    vi.mocked(differ.generateDiff).mockResolvedValue('diff');
+    vi.mocked(writer.applyChanges).mockResolvedValue(undefined);
+
+    await apply({ deploy: true, yes: true });
+
+    expect(prompts.confirmApply).not.toHaveBeenCalled();
+    expect(deployModule.deploy).toHaveBeenCalledWith({ provider: undefined, skipPrompt: true });
+  });
 });

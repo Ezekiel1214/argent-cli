@@ -23,12 +23,12 @@ export async function confirmApply(filePath: string): Promise<boolean> {
   return ok as boolean;
 }
 
-export async function confirmDeploy(): Promise<boolean> {
+export async function confirmDeploy(providerName = 'Vercel'): Promise<boolean> {
   const { ok } = await inquirer.prompt([
     {
       type: 'confirm',
       name: 'ok',
-      message: 'Deploy to Vercel now?',
+      message: `Deploy to ${providerName} now?`,
       default: false,
     },
   ]);

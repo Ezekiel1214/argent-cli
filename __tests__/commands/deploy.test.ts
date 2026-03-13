@@ -46,7 +46,7 @@ describe('deploy command', () => {
 
     await deploy();
 
-    expect(prompts.confirmDeploy).toHaveBeenCalled();
+    expect(prompts.confirmDeploy).toHaveBeenCalledWith('Vercel');
     expect(logger.logger.info).toHaveBeenCalledWith('Deploying to Vercel...');
     expect(mockedExeca).toHaveBeenCalledWith('vercel.cmd', ['--prod'], { stdio: 'inherit' });
     expect(logger.logger.success).toHaveBeenCalledWith('Deployment complete!');
@@ -59,17 +59,17 @@ describe('deploy command', () => {
 
     await deploy({ provider: 'netlify' });
 
+    expect(prompts.confirmDeploy).toHaveBeenCalledWith('Netlify');
     expect(logger.logger.info).toHaveBeenCalledWith('Deploying to Netlify...');
     expect(mockedExeca).toHaveBeenCalledWith('npx.cmd', ['netlify', 'deploy', '--prod'], { stdio: 'inherit' });
   });
 
   it('does nothing if user declines', async () => {
-    mockedExeca.mockResolvedValueOnce({ stdout: '1.2.3' } as never);
     vi.mocked(prompts.confirmDeploy).mockResolvedValue(false);
 
     await deploy();
 
-    expect(mockedExeca).toHaveBeenCalledTimes(1);
+    expect(mockedExeca).not.toHaveBeenCalled();
     expect(logger.logger.info).not.toHaveBeenCalledWith('Deploying to Vercel...');
   });
 
@@ -82,5 +82,15 @@ describe('deploy command', () => {
     await deploy();
 
     expect(logger.logger.info).toHaveBeenCalledWith('Deploying to Netlify...');
+  });
+
+  it('skips the prompt when skipPrompt is enabled', async () => {
+    mockedExeca.mockResolvedValueOnce({ stdout: '1.2.3' } as never);
+    mockedExeca.mockResolvedValueOnce({ stdout: 'Deployed' } as never);
+
+    await deploy({ skipPrompt: true });
+
+    expect(prompts.confirmDeploy).not.toHaveBeenCalled();
+    expect(mockedExeca).toHaveBeenCalledWith('vercel.cmd', ['--prod'], { stdio: 'inherit' });
   });
 });

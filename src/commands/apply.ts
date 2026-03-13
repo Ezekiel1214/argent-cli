@@ -76,7 +76,7 @@ export async function apply(options: ApplyOptions = {}): Promise<void> {
       if (options.dryRun) {
         logger.info('Skipping deploy because dry-run mode is enabled.');
       } else if (appliedCount > 0) {
-        await deploy({ provider: options.deployProvider });
+        await deploy({ provider: options.deployProvider, skipPrompt: Boolean(options.yes) });
       } else {
         logger.info('Skipping deploy because no changes were applied.');
       }

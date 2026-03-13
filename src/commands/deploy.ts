@@ -49,17 +49,18 @@ export async function deploy(options: DeployOptions | boolean = {}): Promise<voi
     return;
   }
 
+  const providerName = getDeployProviderName(provider);
+  const ok = normalizedOptions.skipPrompt || config.autoDeploy || (await confirmDeploy(providerName));
+  if (!ok) {
+    return;
+  }
+
   const cliAvailable = await ensureDeployCli(provider);
   if (!cliAvailable) {
     return;
   }
 
-  const ok = normalizedOptions.skipPrompt || config.autoDeploy || (await confirmDeploy());
-  if (!ok) {
-    return;
-  }
-
-  logger.info(`Deploying to ${getDeployProviderName(provider)}...`);
+  logger.info(`Deploying to ${providerName}...`);
   try {
     await runDeploy(provider);
     logger.success('Deployment complete!');

@@ -238,6 +238,7 @@ Triggers a production deployment for the current project using the configured pr
 Useful variants:
 - `argent deploy`
 - `argent deploy --provider netlify`
+- `argent deploy --yes`
 
 ## Safety Rules
 
