@@ -98,12 +98,26 @@ function buildUnifiedDiff(filePath: string, oldContent: string, newContent: stri
   return lines.join('\n');
 }
 
+function isMissingFileError(err: unknown): boolean {
+  return Boolean(
+    err &&
+    typeof err === 'object' &&
+    'code' in err &&
+    typeof (err as { code?: unknown }).code === 'string' &&
+    (err as { code: string }).code === 'ENOENT',
+  );
+}
+
 export async function generateDiff(filePath: string, newContent: string): Promise<string | null> {
   let oldContent = '';
 
   try {
     oldContent = await fs.readFile(filePath, 'utf-8');
-  } catch {
+  } catch (err) {
+    if (!isMissingFileError(err)) {
+      throw err;
+    }
+
     oldContent = '';
   }
 

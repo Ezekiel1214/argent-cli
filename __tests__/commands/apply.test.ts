@@ -34,9 +34,18 @@ describe('apply command', () => {
   });
 
   it('errors if no mapping found', async () => {
-    vi.mocked(mapping.loadMapping).mockRejectedValue(new Error('not found'));
+    const error = Object.assign(new Error('not found'), { code: 'ENOENT' });
+    vi.mocked(mapping.loadMapping).mockRejectedValue(error);
     await apply();
     expect(logger.logger.error).toHaveBeenCalledWith('No mapping found. Run `argent capture` first.');
+  });
+
+  it('surfaces invalid mapping errors', async () => {
+    vi.mocked(mapping.loadMapping).mockRejectedValue(new Error('Invalid mapping format: expected an array of code blocks.'));
+
+    await apply();
+
+    expect(logger.logger.error).toHaveBeenCalledWith('Invalid mapping format: expected an array of code blocks.');
   });
 
   it('skips blocks without suggestedPath', async () => {

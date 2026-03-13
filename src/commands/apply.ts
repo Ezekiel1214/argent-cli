@@ -17,16 +17,32 @@ interface ApplyOptions {
   yes?: boolean;
 }
 
+function isMissingMappingError(err: unknown): boolean {
+  return Boolean(
+    err &&
+    typeof err === 'object' &&
+    'code' in err &&
+    typeof (err as { code?: unknown }).code === 'string' &&
+    (err as { code: string }).code === 'ENOENT',
+  );
+}
+
 export async function apply(options: ApplyOptions = {}): Promise<void> {
   try {
-    const blocks = await loadMapping(options.mapping).catch(() => null);
-    if (!blocks) {
-      logger.error(
-        options.mapping
-          ? `No mapping found at ${normalizeRelativeFilePath(options.mapping)}.`
-          : 'No mapping found. Run `argent capture` first.',
-      );
-      return;
+    let blocks;
+    try {
+      blocks = await loadMapping(options.mapping);
+    } catch (err) {
+      if (isMissingMappingError(err)) {
+        logger.error(
+          options.mapping
+            ? `No mapping found at ${normalizeRelativeFilePath(options.mapping)}.`
+            : 'No mapping found. Run `argent capture` first.',
+        );
+        return;
+      }
+
+      throw err;
     }
 
     const targetFile = options.file ? normalizeRelativeFilePath(options.file) : null;

@@ -17,7 +17,8 @@ describe('differ', () => {
   });
 
   it('generates diff when file does not exist', async () => {
-    mockedFs.readFile.mockRejectedValue(new Error('ENOENT'));
+    const error = Object.assign(new Error('ENOENT'), { code: 'ENOENT' });
+    mockedFs.readFile.mockRejectedValue(error);
     const result = await generateDiff('new.txt', 'new content');
     expect(result).toContain('+new content');
   });
@@ -27,5 +28,11 @@ describe('differ', () => {
     const result = await generateDiff('file.txt', 'new line\n');
     expect(result).toContain('-old line');
     expect(result).toContain('+new line');
+  });
+
+  it('surfaces non-ENOENT read failures', async () => {
+    mockedFs.readFile.mockRejectedValue(new Error('EACCES'));
+
+    await expect(generateDiff('file.txt', 'new line\n')).rejects.toThrow('EACCES');
   });
 });
