@@ -33,7 +33,7 @@ async function runDeploy(provider: DeployProvider): Promise<void> {
     return;
   }
 
-  await execa(getVercelCommand(), ['--prod'], { stdio: 'inherit' });
+  await execa(getVercelCommand(), ['deploy', '--prod', '-y'], { stdio: 'inherit' });
 }
 
 export async function deploy(options: DeployOptions | boolean = {}): Promise<void> {

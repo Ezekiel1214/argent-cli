@@ -35,7 +35,7 @@ describe('deploy command', () => {
 
   it('shows error if Vercel CLI missing', async () => {
     mockedExeca.mockRejectedValue(new Error('not found'));
-    await deploy();
+    await deploy({ skipPrompt: true });
     expect(logger.logger.error).toHaveBeenCalledWith('Vercel CLI not found. Please install it: npm i -g vercel');
   });
 
@@ -48,7 +48,7 @@ describe('deploy command', () => {
 
     expect(prompts.confirmDeploy).toHaveBeenCalledWith('Vercel');
     expect(logger.logger.info).toHaveBeenCalledWith('Deploying to Vercel...');
-    expect(mockedExeca).toHaveBeenCalledWith('vercel.cmd', ['--prod'], { stdio: 'inherit' });
+    expect(mockedExeca).toHaveBeenCalledWith('vercel.cmd', ['deploy', '--prod', '-y'], { stdio: 'inherit' });
     expect(logger.logger.success).toHaveBeenCalledWith('Deployment complete!');
   });
 
@@ -91,6 +91,6 @@ describe('deploy command', () => {
     await deploy({ skipPrompt: true });
 
     expect(prompts.confirmDeploy).not.toHaveBeenCalled();
-    expect(mockedExeca).toHaveBeenCalledWith('vercel.cmd', ['--prod'], { stdio: 'inherit' });
+    expect(mockedExeca).toHaveBeenCalledWith('vercel.cmd', ['deploy', '--prod', '-y'], { stdio: 'inherit' });
   });
 });
