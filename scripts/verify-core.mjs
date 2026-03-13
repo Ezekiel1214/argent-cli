@@ -91,6 +91,7 @@ await run('path normalizer keeps project-relative paths and rejects escapes', as
   assert.equal(normalizeRelativeFilePath('"nested\\\\file.ts"'), 'nested/file.ts');
   assert.throws(() => normalizeRelativeFilePath('../escape.ts'));
   assert.throws(() => normalizeRelativeFilePath('C:\\temp\\file.ts'));
+  assert.throws(() => normalizeRelativeFilePath('C:temp\\file.ts'));
 });
 
 await run('document path inference derives doc paths from headings', async () => {

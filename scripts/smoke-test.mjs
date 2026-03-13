@@ -43,6 +43,7 @@ async function main() {
     const pathsModule = await import(pathToFileURL(path.join(distRoot, 'core', 'paths.js')).href);
     assert.equal(pathsModule.normalizeRelativeFilePath('./src/example.ts'), 'src/example.ts');
     assert.throws(() => pathsModule.normalizeRelativeFilePath('../escape.ts'));
+    assert.throws(() => pathsModule.normalizeRelativeFilePath('C:temp\\file.ts'));
     await mappingModule.saveMapping(blocks);
     const loaded = await mappingModule.loadMapping();
     assert.deepEqual(loaded, blocks);

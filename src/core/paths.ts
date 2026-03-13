@@ -1,7 +1,7 @@
 import path from 'path';
 
 function hasWindowsDrivePrefix(value: string): boolean {
-  return /^[a-zA-Z]:[\\/]/.test(value);
+  return /^[a-zA-Z]:/.test(value);
 }
 
 export function normalizeRelativeFilePath(input: string): string {
