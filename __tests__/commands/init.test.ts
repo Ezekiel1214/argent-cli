@@ -22,7 +22,8 @@ describe('init command', () => {
   });
 
   it('creates .argentrc.json if not exists', async () => {
-    mockedFs.access.mockRejectedValue(new Error('ENOENT'));
+    const error = Object.assign(new Error('ENOENT'), { code: 'ENOENT' });
+    mockedFs.access.mockRejectedValue(error);
     mockedFs.writeFile.mockResolvedValue(undefined);
 
     await init();
@@ -39,6 +40,15 @@ describe('init command', () => {
     mockedFs.access.mockResolvedValue(undefined);
     await init();
     expect(logger.logger.warn).toHaveBeenCalledWith('.argentrc.json already exists.');
+    expect(mockedFs.writeFile).not.toHaveBeenCalled();
+  });
+
+  it('surfaces non-ENOENT access failures', async () => {
+    mockedFs.access.mockRejectedValue(new Error('EACCES'));
+
+    await init();
+
+    expect(logger.logger.error).toHaveBeenCalledWith('EACCES');
     expect(mockedFs.writeFile).not.toHaveBeenCalled();
   });
 });

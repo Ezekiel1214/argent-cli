@@ -194,6 +194,35 @@ await run('writer stores backups under source-relative directories', async () =>
   }
 });
 
+await run('writer surfaces non-ENOENT read failures', async () => {
+  const { applyChanges } = await importDistModule(path.join('core', 'writer.js'));
+  const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'argent-verify-writer-error-'));
+  const previousCwd = process.cwd();
+  const originalReadFile = fs.readFile;
+
+  try {
+    process.chdir(tempDir);
+    fs.readFile = async (...args) => {
+      if (args[0] === 'blocked.txt') {
+        const error = new Error('EACCES');
+        error.code = 'EACCES';
+        throw error;
+      }
+
+      return originalReadFile(...args);
+    };
+
+    await assert.rejects(applyChanges('blocked.txt', 'new\n'), /EACCES/);
+
+    const blockedExists = await fs.access('blocked.txt').then(() => true).catch(() => false);
+    assert.equal(blockedExists, false);
+  } finally {
+    fs.readFile = originalReadFile;
+    process.chdir(previousCwd);
+    await fs.rm(tempDir, { recursive: true, force: true });
+  }
+});
+
 await run('apply command can target a single mapped file', async () => {
   const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'argent-verify-apply-'));
   const previousCwd = process.cwd();
@@ -519,6 +548,43 @@ await run('build command does not apply stale mappings when capture produces no 
     const stale = await fs.readFile(path.join('docs', 'stale.md'), 'utf-8');
     assert.equal(stale, 'stale\n');
   } finally {
+    process.chdir(previousCwd);
+    await fs.rm(tempDir, { recursive: true, force: true });
+  }
+});
+
+await run('init surfaces non-ENOENT access failures', async () => {
+  const { init } = await importDistModule(path.join('commands', 'init.js'));
+  const loggerModule = await importDistModule(path.join('utils', 'logger.js'));
+  const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'argent-verify-init-error-'));
+  const previousCwd = process.cwd();
+  const originalAccess = fs.access;
+  const originalError = loggerModule.logger.error;
+  const errors = [];
+
+  try {
+    process.chdir(tempDir);
+    fs.access = async (...args) => {
+      if (args[0] === path.join(tempDir, '.argentrc.json')) {
+        const error = new Error('EACCES');
+        error.code = 'EACCES';
+        throw error;
+      }
+
+      return originalAccess(...args);
+    };
+    loggerModule.logger.error = (message) => {
+      errors.push(String(message));
+    };
+
+    await init();
+
+    const configExists = await originalAccess(path.join(tempDir, '.argentrc.json')).then(() => true).catch(() => false);
+    assert.equal(configExists, false);
+    assert.equal(errors.at(-1), 'EACCES');
+  } finally {
+    fs.access = originalAccess;
+    loggerModule.logger.error = originalError;
     process.chdir(previousCwd);
     await fs.rm(tempDir, { recursive: true, force: true });
   }

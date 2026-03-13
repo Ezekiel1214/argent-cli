@@ -32,7 +32,8 @@ describe('writer', () => {
   });
 
   it('skips backup if file does not exist', async () => {
-    mockedFs.readFile.mockRejectedValue(new Error('ENOENT'));
+    const error = Object.assign(new Error('ENOENT'), { code: 'ENOENT' });
+    mockedFs.readFile.mockRejectedValue(error);
     mockedFs.mkdir.mockResolvedValue(undefined);
     mockedFs.writeFile.mockResolvedValue(undefined);
 
@@ -40,5 +41,11 @@ describe('writer', () => {
 
     expect(mockedFs.mkdir).toHaveBeenCalledWith('new', { recursive: true });
     expect(mockedFs.writeFile).toHaveBeenCalledWith('new/file.js', 'content', 'utf-8');
+  });
+
+  it('surfaces non-ENOENT read failures', async () => {
+    mockedFs.readFile.mockRejectedValue(new Error('EACCES'));
+
+    await expect(applyChanges('src/file.js', 'new content')).rejects.toThrow('EACCES');
   });
 });

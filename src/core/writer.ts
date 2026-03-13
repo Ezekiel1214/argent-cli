@@ -16,6 +16,16 @@ function getBackupPath(backupDir: string, filePath: string): string {
   return path.join(backupDir, safeDir, `${parsed.base}.${timestamp}.bak`);
 }
 
+function isMissingFileError(err: unknown): boolean {
+  return Boolean(
+    err &&
+    typeof err === 'object' &&
+    'code' in err &&
+    typeof (err as { code?: unknown }).code === 'string' &&
+    (err as { code: string }).code === 'ENOENT',
+  );
+}
+
 export async function applyChanges(filePath: string, newContent: string): Promise<void> {
   const config = await loadConfig();
   const backupDir = config.backupDir ?? DEFAULT_BACKUP_DIR;
@@ -26,8 +36,10 @@ export async function applyChanges(filePath: string, newContent: string): Promis
     await fs.mkdir(path.dirname(backupPath), { recursive: true });
     await fs.writeFile(backupPath, existing, 'utf-8');
     logger.info(`Backup saved to ${backupPath}`);
-  } catch {
-    // File did not exist, so no backup needed.
+  } catch (err) {
+    if (!isMissingFileError(err)) {
+      throw err;
+    }
   }
 
   await fs.mkdir(path.dirname(filePath), { recursive: true });
