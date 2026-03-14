@@ -1,6 +1,6 @@
 {
   "name": "super-ai-argent",
-  "version": "0.4.2",
+  "version": "0.4.3",
   "description": "Bridge AI chats to your code with safe apply and Vercel deploy",
   "type": "module",
   "bin": {

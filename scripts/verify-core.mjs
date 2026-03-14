@@ -6,6 +6,8 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const distRoot = path.join(repoRoot, 'dist');
+const packageJson = JSON.parse(await fs.readFile(path.join(repoRoot, 'package.json'), 'utf-8'));
+const packageVersion = packageJson.version;
 
 async function importDistModule(relativePath) {
   return import(pathToFileURL(path.join(distRoot, relativePath)).href);
@@ -116,7 +118,7 @@ await run('doctor reports current capabilities as JSON', async () => {
   }
 
   const report = JSON.parse(outputs.join('\n'));
-  assert.equal(report.version, '0.4.0');
+  assert.equal(report.version, packageVersion);
   assert.ok(report.capabilities.captureInputs.includes('file'));
   assert.ok(report.capabilities.applyFeatures.includes('dry-run'));
   assert.ok(report.capabilities.buildFeatures.includes('optional deploy'));

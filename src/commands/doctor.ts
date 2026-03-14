@@ -3,6 +3,7 @@ import path from 'path';
 import { execa } from 'execa';
 import { loadConfig } from '../core/config.js';
 import { logger } from '../utils/logger.js';
+import { APP_VERSION } from '../version.js';
 import {
   DEFAULT_DEPLOY_PROVIDER,
   getDeployProviderName,
@@ -76,7 +77,7 @@ export async function doctor(options: DoctorOptions = {}): Promise<void> {
       DEFAULT_DEPLOY_PROVIDER;
     const deployStatus = await getDeployStatus(deployProvider);
     const report: DoctorReport = {
-      version: '0.4.0',
+      version: APP_VERSION,
       runtime: {
         node: process.version,
         platform: process.platform,

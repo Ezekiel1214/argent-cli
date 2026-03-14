@@ -6,10 +6,11 @@ import { build } from './commands/build.js';
 import { deploy } from './commands/deploy.js';
 import { doctor } from './commands/doctor.js';
 import { init } from './commands/init.js';
+import { APP_VERSION } from './version.js';
 
 const program = new Command();
 
-program.name('argent').description('Super AI Argent - bridge AI chats to your code').version('0.4.0');
+program.name('argent').description('Super AI Argent - bridge AI chats to your code').version(APP_VERSION);
 
 program
   .command('capture')
