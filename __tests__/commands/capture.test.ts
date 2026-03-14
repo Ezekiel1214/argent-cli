@@ -85,7 +85,7 @@ describe('capture command', () => {
     expect(mapping.saveMapping).toHaveBeenCalledWith([
       { content: 'code1', suggestedPath: 'auto.js' },
       { content: 'code2', suggestedPath: 'manual.js' },
-    ]);
+    ], undefined);
     expect(logger.logger.success).toHaveBeenCalledWith(
       'Mapping saved to .argent/mapping.json. Run `argent apply` to preview and apply changes.',
     );

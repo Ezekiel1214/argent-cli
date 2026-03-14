@@ -115,7 +115,7 @@ describe('apply command', () => {
 
     await apply({ deploy: true, deployProvider: 'netlify' });
 
-    expect(deployModule.deploy).toHaveBeenCalledWith({ provider: 'netlify' });
+    expect(deployModule.deploy).toHaveBeenCalledWith({ provider: 'netlify', skipPrompt: false });
   });
 
   it('uses --yes to skip the deploy prompt in follow-up deploys', async () => {
