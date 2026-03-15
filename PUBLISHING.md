@@ -71,6 +71,12 @@ The workflow now publishes on tag push and then creates the GitHub release autom
 
 Before it can work, npm must trust this repository as a publisher for `super-ai-argent`.
 
+Important bootstrap note:
+
+- `super-ai-argent` is still unpublished if `npm view super-ai-argent version` returns `404`
+- npm's current trusted-publisher setup is configured from package settings on npmjs.com
+- inference: the first release may still need a manual `npm publish`, then trusted publishing can be configured from the package settings page for later releases
+
 Set that up in npm package settings:
 
 1. Open npm package settings for `super-ai-argent`.
