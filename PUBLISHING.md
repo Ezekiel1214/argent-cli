@@ -5,7 +5,7 @@ This repo publishes the CLI package `super-ai-argent`.
 Current package version:
 
 ```text
-0.4.3
+0.4.4
 ```
 
 ## Before You Publish
@@ -67,7 +67,19 @@ This repo includes:
 .github/workflows/publish.yml
 ```
 
-Use npm trusted publishing if you want GitHub Actions to publish future releases instead of a local terminal session.
+The workflow now publishes on tag push and then creates the GitHub release automatically.
+
+Launch path:
+
+```powershell
+git push origin master
+git push origin v0.4.4
+```
+
+Requirements:
+
+- npm trusted publishing must be configured for `Ezekiel1214/argent-cli`
+- GitHub Actions must be enabled for the repository
 
 ## Common Failure Modes
 
@@ -86,14 +98,14 @@ Use npm trusted publishing if you want GitHub Actions to publish future releases
 Current pushed tags:
 
 ```text
+v0.4.4
 v0.4.3
 v0.4.2
 v0.4.1
-v0.4.0
 ```
 
 The current verified release target is:
 
 ```text
-super-ai-argent@0.4.3
+super-ai-argent@0.4.4
 ```
