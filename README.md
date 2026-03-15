@@ -315,6 +315,7 @@ npm pack --dry-run
 Publishing:
 - The package tarball is intentionally limited via the `files` allowlist in `package.json`.
 - GitHub Actions can publish from a release using npm trusted publishing once the npm package is configured for this repository.
+- See `PUBLISHING.md` for the current end-to-end local publish and release steps.
 
 Notes:
 - `npm test` runs the in-process core verifier and works in restricted environments.
