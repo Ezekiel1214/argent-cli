@@ -4,12 +4,6 @@ on:
   push:
     tags:
       - v*
-  workflow_dispatch:
-    inputs:
-      tag:
-        description: Existing version tag to publish, for example v0.4.4
-        required: true
-        type: string
 
 permissions:
   contents: write
@@ -19,11 +13,9 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     env:
-      PUBLISH_TAG: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
+      PUBLISH_TAG: ${{ github.ref_name }}
     steps:
       - uses: actions/checkout@v5
-        with:
-          ref: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref }}
       - uses: actions/setup-node@v6
         with:
           node-version: 24

@@ -78,7 +78,7 @@ Set that up in npm package settings:
 3. Add a GitHub Actions publisher for:
    - Owner: `Ezekiel1214`
    - Repository: `argent-cli`
-   - Workflow file: `.github/workflows/publish.yml`
+   - Workflow filename: `publish.yml`
 
 Launch path:
 
@@ -94,9 +94,13 @@ Requirements:
 
 Retry path after npm trusted publishing is configured:
 
-- Go to GitHub Actions
-- Open the `Publish` workflow
-- Run it manually with the existing tag, for example `v0.4.4`
+- Go to the failed `Publish` run for `v0.4.4`
+- Use `Re-run all jobs`
+
+Fallback if you prefer a fresh run:
+
+- bump the package version
+- create and push a new `v*` tag
 
 The workflow is idempotent:
 
@@ -118,7 +122,7 @@ The workflow is idempotent:
 GitHub Actions `npm publish` fails even though the workflow has `id-token: write`
 
 - npm trusted publishing is not configured yet for this package and repo
-- fix the npm package `Trusted publishing` settings, then rerun the `Publish` workflow for the existing tag
+- fix the npm package `Trusted publishing` settings, then re-run the failed tagged workflow
 
 ## Release Line
 
