@@ -1,11 +1,11 @@
 # Publishing
 
-This repo publishes the CLI package `super-ai-argent`.
+This repo publishes the CLI package `@ezekiel1214/argent-cli`.
 
 Current package version:
 
 ```text
-0.4.4
+0.4.5
 ```
 
 ## Before You Publish
@@ -38,7 +38,7 @@ npm.cmd whoami
 Publish with your real current npm authenticator code:
 
 ```powershell
-npm.cmd publish --otp 123456
+npm.cmd publish --access public --otp 123456
 ```
 
 Replace `123456` with the actual live 6-digit code from your authenticator app.
@@ -56,7 +56,7 @@ Then configure it locally:
 npm.cmd config delete //registry.npmjs.org/:_authToken
 npm.cmd config set //registry.npmjs.org/:_authToken YOUR_NPM_TOKEN
 npm.cmd whoami
-npm.cmd publish
+npm.cmd publish --access public
 ```
 
 ### Option 3: Trusted Publishing From GitHub Actions
@@ -69,17 +69,17 @@ This repo includes:
 
 The workflow now publishes on tag push and then creates the GitHub release automatically.
 
-Before it can work, npm must trust this repository as a publisher for `super-ai-argent`.
+Before it can work, npm must trust this repository as a publisher for `@ezekiel1214/argent-cli`.
 
 Important bootstrap note:
 
-- `super-ai-argent` is still unpublished if `npm view super-ai-argent version` returns `404`
+- `@ezekiel1214/argent-cli` is still unpublished if `npm view @ezekiel1214/argent-cli version` returns `404`
 - npm's current trusted-publisher setup is configured from package settings on npmjs.com
 - inference: the first release may still need a manual `npm publish`, then trusted publishing can be configured from the package settings page for later releases
 
 Set that up in npm package settings:
 
-1. Open npm package settings for `super-ai-argent`.
+1. Open npm package settings for `@ezekiel1214/argent-cli`.
 2. Go to `Trusted publishing`.
 3. Add a GitHub Actions publisher for:
    - Owner: `Ezekiel1214`
@@ -90,7 +90,7 @@ Launch path:
 
 ```powershell
 git push origin master
-git push origin v0.4.4
+git push origin v0.4.5
 ```
 
 Requirements:
@@ -100,7 +100,7 @@ Requirements:
 
 Retry path after npm trusted publishing is configured:
 
-- Go to the failed `Publish` run for `v0.4.4`
+- Go to the failed `Publish` run for `v0.4.5`
 - Use `Re-run all jobs`
 
 Fallback if you prefer a fresh run:
@@ -135,6 +135,7 @@ GitHub Actions `npm publish` fails even though the workflow has `id-token: write
 Current pushed tags:
 
 ```text
+v0.4.5
 v0.4.4
 v0.4.3
 v0.4.2
@@ -144,5 +145,5 @@ v0.4.1
 The current verified release target is:
 
 ```text
-super-ai-argent@0.4.4
+@ezekiel1214/argent-cli@0.4.5
 ```

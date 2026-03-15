@@ -26,7 +26,7 @@ jobs:
           case "$PUBLISH_TAG" in
             v*) ;;
             *)
-              echo "Expected a version tag like v0.4.4, got $PUBLISH_TAG"
+              echo "Expected a version tag like v1.2.3, got $PUBLISH_TAG"
               exit 1
               ;;
           esac

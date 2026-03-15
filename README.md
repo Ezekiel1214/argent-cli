@@ -1,4 +1,4 @@
-# super-ai-argent
+# Argent CLI
 
 Turn ChatGPT, Codex, and Claude output into safe, reviewable file changes.
 
@@ -314,6 +314,7 @@ npm pack --dry-run
 
 Publishing:
 - The package tarball is intentionally limited via the `files` allowlist in `package.json`.
+- The npm package name is `@ezekiel1214/argent-cli`.
 - GitHub Actions can publish from a version tag using `publish.yml` once npm trusted publishing is configured for this repository, which may require an initial manual publish first.
 - See `PUBLISHING.md` for the current end-to-end local publish and release steps.
 
