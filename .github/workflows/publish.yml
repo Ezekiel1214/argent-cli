@@ -4,6 +4,12 @@ on:
   push:
     tags:
       - v*
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing version tag to publish, for example v0.4.4
+        required: true
+        type: string
 
 permissions:
   contents: write
@@ -12,26 +18,56 @@ permissions:
 jobs:
   publish:
     runs-on: ubuntu-latest
+    env:
+      PUBLISH_TAG: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
         with:
-          node-version: 22
+          ref: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref }}
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
           registry-url: https://registry.npmjs.org
           cache: npm
-      - name: Verify tag matches package version
+      - name: Verify publish tag matches package version
         run: |
+          case "$PUBLISH_TAG" in
+            v*) ;;
+            *)
+              echo "Expected a version tag like v0.4.4, got $PUBLISH_TAG"
+              exit 1
+              ;;
+          esac
           PACKAGE_VERSION=$(node -p "require('./package.json').version")
-          if [ "v$PACKAGE_VERSION" != "$GITHUB_REF_NAME" ]; then
-            echo "Tag $GITHUB_REF_NAME does not match package version v$PACKAGE_VERSION"
+          if [ "v$PACKAGE_VERSION" != "$PUBLISH_TAG" ]; then
+            echo "Tag $PUBLISH_TAG does not match package version v$PACKAGE_VERSION"
             exit 1
           fi
       - run: npm install -g npm@^11.5.1
       - run: npm ci
       - run: npm run build
       - run: npm test
-      - run: npm publish
+      - run: npm run test:vitest
+      - run: npm run smoke
+      - run: npm pack --dry-run
+      - name: Check if the version is already on npm
+        run: |
+          PACKAGE_NAME=$(node -p "require('./package.json').name")
+          PACKAGE_VERSION=$(node -p "require('./package.json').version")
+          if npm view "$PACKAGE_NAME@$PACKAGE_VERSION" version >/dev/null 2>&1; then
+            echo "PACKAGE_ALREADY_PUBLISHED=true" >> "$GITHUB_ENV"
+          else
+            echo "PACKAGE_ALREADY_PUBLISHED=false" >> "$GITHUB_ENV"
+          fi
+      - name: Publish to npm
+        if: env.PACKAGE_ALREADY_PUBLISHED != 'true'
+        run: npm publish --access public
       - name: Create GitHub release
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release create "$GITHUB_REF_NAME" --generate-notes --repo "$GITHUB_REPOSITORY"
+        run: |
+          if gh release view "$PUBLISH_TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo "GitHub release $PUBLISH_TAG already exists."
+            exit 0
+          fi
+          gh release create "$PUBLISH_TAG" --generate-notes --repo "$GITHUB_REPOSITORY"

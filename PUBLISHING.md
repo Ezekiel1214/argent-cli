@@ -69,6 +69,17 @@ This repo includes:
 
 The workflow now publishes on tag push and then creates the GitHub release automatically.
 
+Before it can work, npm must trust this repository as a publisher for `super-ai-argent`.
+
+Set that up in npm package settings:
+
+1. Open npm package settings for `super-ai-argent`.
+2. Go to `Trusted publishing`.
+3. Add a GitHub Actions publisher for:
+   - Owner: `Ezekiel1214`
+   - Repository: `argent-cli`
+   - Workflow file: `.github/workflows/publish.yml`
+
 Launch path:
 
 ```powershell
@@ -81,6 +92,17 @@ Requirements:
 - npm trusted publishing must be configured for `Ezekiel1214/argent-cli`
 - GitHub Actions must be enabled for the repository
 
+Retry path after npm trusted publishing is configured:
+
+- Go to GitHub Actions
+- Open the `Publish` workflow
+- Run it manually with the existing tag, for example `v0.4.4`
+
+The workflow is idempotent:
+
+- it skips `npm publish` if that exact version is already on npm
+- it skips `gh release create` if the GitHub release already exists
+
 ## Common Failure Modes
 
 `401 Unauthorized`
@@ -92,6 +114,11 @@ Requirements:
 
 - you are authenticated, but publish still does not satisfy npm's 2FA policy
 - use a real OTP with `--otp`, or use a granular token with `Bypass 2FA`
+
+GitHub Actions `npm publish` fails even though the workflow has `id-token: write`
+
+- npm trusted publishing is not configured yet for this package and repo
+- fix the npm package `Trusted publishing` settings, then rerun the `Publish` workflow for the existing tag
 
 ## Release Line
 
